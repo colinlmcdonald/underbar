@@ -125,7 +125,7 @@ _.uniq = function(array) {
 };
 
 var numbers = [1, 2, 1, 3, 1, 4];
-console.log(_.uniq(numbers));
+//console.log(_.uniq(numbers));
 
 
   // Return the results of applying an iterator to each element.
@@ -189,6 +189,14 @@ console.log(_.uniq(numbers));
     return accumulator;
   };
 
+var arr = [10, 15, 20, 25];
+var add = function(num1, num2) {
+  return num1 + num2;
+};
+
+/*console.log(reduce(arr, add));
+console.log(reduce(arr, add, 0));*/
+
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
@@ -201,44 +209,54 @@ console.log(_.uniq(numbers));
     }, false);
   };
 
-console.log(_.contains(numbers, 7));
+//console.log(_.contains(numbers, 7));
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
-    return _.reduce(collection, function(prev, value) {
-      prev = value;
-      if (iterator(value)) {
-        prev = true;
-      } else if (prev === []) {
-        prev = true;
-      } else {
-        prev = false;
-        return false;
-      }
-      return prev;
-    }, true);
     // TIP: Try re-using reduce() here.
+    var thisIsRight = _.filter(collection, function(value) {
+      if (iterator === undefined) {
+        return value;
+      } else {
+      return iterator(value);
+    }
+    })
+    if (thisIsRight.length === collection.length) {
+      return true;
+    } else {
+      return false;
+    }
+
   };
 
-      var isEven = function(num) {
-        return num % 2 === 0;
-      };
-var numbers = [2, 4, 6, 7];
-console.log(_.every(numbers, isEven));
+var numbers = [false, false, false];
+//console.log(_.every(numbers, _.identity));
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    //loop through the collection, if any element passes the test, return true
+    return _.reduce(collection, function(state, value) {
+        if (iterator === undefined) {
+          iterator = _.identity;
+        } 
+        else if (!!iterator(value)) {
+          state = true;
+        } 
+        return state;
+    }, false);
   };
 
-
-  /**
+var isEven = function(num) { return num % 2 === 0}
+//console.log(_.some([1, 10, 29], isEven));
+/*
+  *
    * OBJECTS
    * =======
    *
    * In this section, we'll look at a couple of helpers for merging objects.
-   */
+   
 
   // Extend a given object with all the properties of the passed in
   // object(s).
@@ -250,26 +268,45 @@ console.log(_.every(numbers, isEven));
   //     key3: "something else new"
   //   }, {
   //     bla: "even more stuff"
-  //   }); // obj1 now contains key1, key2, key3 and bla
+  //   }); // obj1 now contains key1, key2, key3 and bla*/
   _.extend = function(obj) {
+    _.each(Array.prototype.slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
+
   };
+
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(Array.prototype.slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          if (obj[prop] === undefined) {
+          obj[prop] = source[prop];
+        }
+        }
+      }
+    });
+    return obj;
   };
 
-
-  /**
+/*  *
    * FUNCTIONS
    * =========
    *
    * Now we're getting into function decorators, which take in any function
    * and return out a new version of the function that works somewhat differently
-   */
+   
 
   // Return a function that can be called at most one time. Subsequent calls
-  // should return the previously returned value.
+  // should return the previously returned value.*/
   _.once = function(func) {
     // TIP: These variables are stored in a "closure scope" (worth researching),
     // so that they'll remain available to the newly-generated function every
@@ -291,7 +328,7 @@ console.log(_.every(numbers, isEven));
     };
   };
 
-  // Memorize an expensive function's results by storing them. You may assume
+  // Memoize an expensive function's results by storing them. You may assume
   // that the function only takes primitives as arguments.
   // memoize could be renamed to oncePerUniqueArgumentList; memoize does the
   // same thing as once, but based on many sets of unique arguments.
@@ -299,8 +336,34 @@ console.log(_.every(numbers, isEven));
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
   _.memoize = function(func) {
+    var result, argHolder; 
+
+    var func = callback;
+    callback = function() {
+      return argHolder = arguments;
+    }
+
+    return function() {
+      if (memo !== result) {
+        result = func.apply(this, arguments);
+      }
+      return result;
+    }
+
   };
+  var memoAdd = _.memoize(add);
+console.log(memoAdd(1,2));
+console.log(memoAdd(1,2));
+
+/*  var add = (function(a, b) {
+    return a + b;
+  });*/
+
+  //console.log(_.memoize(add(1, 2)));
+
+
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -315,7 +378,7 @@ console.log(_.every(numbers, isEven));
   /**
    * ADVANCED COLLECTION OPERATIONS
    * ==============================
-   */
+   
 
   // Randomizes the order of an array's contents.
   //
