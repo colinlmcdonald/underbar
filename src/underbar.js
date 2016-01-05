@@ -386,19 +386,23 @@ var isEven = function(num) { return num % 2 === 0}
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
     var argHolder = [].slice.call(arguments);
-    var newHolder = concat(argHolder);
-    var rando = Math.random() * (argHolder.length - 0) + 0;
     var shuffled = [];
-    _.each(argHolder, function(value) {
-      if (shuffled[rando] === undefined) {
-        shuffled.push(value);
+    var memo = {};
+
+    do _.each(argHolder[0], function(value) {
+      var rando = Math.floor(Math.random() * (argHolder[0].length - 0) + 0);
+      if (!(rando in memo)) {
+        shuffled.push(argHolder[0][rando]);
+        memo[rando] = rando;
       }
     });
+    while (shuffled.length !== argHolder[0].length);
+
     return shuffled;
   };
-  
-console.log(_.shuffle([1,2,3,4,5,6]));
 
+  console.log(_.shuffle([1,2,3,4,5]));
+  
 /*   * EXTRA CREDIT
    * =================
    *
