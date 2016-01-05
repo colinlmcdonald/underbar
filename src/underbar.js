@@ -338,24 +338,18 @@ var isEven = function(num) { return num % 2 === 0}
   // instead if possible.
 
   _.memoize = function(func) {
-    var result, argHolder; 
-
-    var func = callback;
-    callback = function() {
-      return argHolder = arguments;
-    }
+    var storage = {};
 
     return function() {
-      if (memo !== result) {
-        result = func.apply(this, arguments);
+      var copyOfArgs = [].slice.call(arguments);
+      if (!(storage[copyOfArgs] === undefined)) {
+        return storage[copyOfArgs];
+      } else {
+        storage[copyOfArgs] = func.apply(this, arguments);
       }
-      return result;
+      return storage[copyOfArgs];
     }
-
   };
-  var memoAdd = _.memoize(add);
-console.log(memoAdd(1,2));
-console.log(memoAdd(1,2));
 
 /*  var add = (function(a, b) {
     return a + b;
@@ -372,12 +366,17 @@ console.log(memoAdd(1,2));
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var newArgs = [].slice.call(arguments);
+    var funcArgs = newArgs.slice(2, newArgs.length)
+    return setTimeout(function() {return func.apply(null, funcArgs)}, wait);
   };
 
+  console.log(_.delay(_.identity, 5000, 'a', 'b'));
 
-  /**
+
+/*  *
    * ADVANCED COLLECTION OPERATIONS
-   * ==============================
+   * ==============================*/
    
 
   // Randomizes the order of an array's contents.
@@ -386,16 +385,26 @@ console.log(memoAdd(1,2));
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var argHolder = [].slice.call(arguments);
+    var newHolder = concat(argHolder);
+    var rando = Math.random() * (argHolder.length - 0) + 0;
+    var shuffled = [];
+    _.each(argHolder, function(value) {
+      if (shuffled[rando] === undefined) {
+        shuffled.push(value);
+      }
+    });
+    return shuffled;
   };
+  
+console.log(_.shuffle([1,2,3,4,5,6]));
 
-
-  /**
-   * EXTRA CREDIT
+/*   * EXTRA CREDIT
    * =================
    *
    * Note: This is the end of the pre-course curriculum. Feel free to continue,
-   * but nothing beyond here is required.
-   */
+   * but nothing beyond here is required.*/
+   
 
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
